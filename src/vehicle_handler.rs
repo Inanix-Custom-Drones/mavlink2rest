@@ -1,3 +1,5 @@
+mod cli;
+
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
@@ -50,7 +52,13 @@ impl Vehicle {
         let inner = inner.lock().unwrap();
         InnerVehicle::heartbeat_loop(&inner);
         InnerVehicle::parser_loop(&inner);
-        let _ = inner.channel.send_default(&InnerVehicle::request_stream());
+		if(cli::mavlink_request_data_stream_freq() > 0){
+			let _ = inner.channel.send_default(&InnerVehicle::request_stream());
+		}else{
+			if *verbose {
+                println!("Mavlink REQUEST_DATA_STREAM_DATA desactivated");
+            }
+		}
     }
 }
 
@@ -138,10 +146,13 @@ impl InnerVehicle {
                     target_system: 0,
                     target_component: 0,
                     req_stream_id: 0,
-                    req_message_rate: 10,
+                    req_message_rate: cli::mavlink_request_data_stream_freq(),
                     start_stop: 1,
                 },
             )
         })
+		if *verbose {
+            println!("Mavlink REQUEST_DATA_STREAM_DATA at {}Hz", cli::mavlink_request_data_stream_freq());
+        }
     }
 }
