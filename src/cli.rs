@@ -81,6 +81,16 @@ pub fn mavlink_send_initial_heartbeats() -> bool {
         .is_present("send-initial-heartbeats");
 }
 
+pub fn mavlink_request_data_stream_freq() -> u8 {
+    return MANAGER
+        .as_ref()
+        .clap_matches
+        .value_of("request-data-stream-freq")
+        .unwrap()
+        .parse::<u8>()
+        .unwrap();
+}
+
 //TODO: Move to the top
 fn get_clap_matches<'a>() -> clap::ArgMatches<'a> {
     let version = format!(
@@ -157,6 +167,13 @@ fn get_clap_matches<'a>() -> clap::ArgMatches<'a> {
                 .long("send-initial-heartbeats")
                 .help("Send a burst of initial heartbeats to the autopilot spaced by 0.1 seconds to wake up MAVLink connection (useful for PX4-like autopilots).")
                 .takes_value(false),
+        )
+		.arg(
+            clap::Arg::with_name("request-data-stream-freq")
+                .long("request-data-stream-freq")
+                .help("Set the frequency of REQUEST_DATA_STREAM_DATA. O to desactivate.")
+                .takes_value(true)
+				.default_value("10"),
         );
 
     return matches.get_matches();
